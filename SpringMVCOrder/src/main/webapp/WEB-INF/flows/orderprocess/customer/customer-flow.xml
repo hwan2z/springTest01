@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+	
+	<!-- 플로우 데이터 정의 : 플로우가 사용하는 데이터
+			플로우 변수 , 이때 변수 클래스는 Serializable인터페이스를 구현해야 플로우의 요청 사이에 인스턴스 상태가 저장된다. -->
+	<var name="customer" class="com.hwan.order.model.CustomerModel" />
+	
+	<!-- view-state는 상태를 정의하고, transition은 전이를 정의 -->
+	<view-state id="welcome">
+		<transition on="nameEntered" to = "checkBlackList"/>
+	</view-state>
+	
+	<!-- decision-state 는 결정 상태를 정의 조건을 평가하고 플로우를 분기시킬 때 사용
+	<decision-state id="checkBlackList">
+		<if test="orderFlowAction.checkBlackList(requestParameters.name)"
+			  then="rejectRegistration"
+			  else="getCustomer"/>
+	</decision-state>
+ 	-->
+ 	<!-- action-state는 플로우 로직을 수행 
+ 			-->
+ 	<action-state id="checkBlackList">
+ 		<evaluate expression="orderFlowAction.checkBlackList(requestParameters.name)"/>
+ 		<transition on="yes" to="rejectRegistration"/>
+ 		<transition on="no" to="getCustomer"/>
+ 	</action-state>
+ 	
+ 	<!-- 작업을 수행하는 메서드가 리턴타입이 없을때는 on이 생략되고 사용한다. 
+ 			예외가 발생되는 경우에 따라도 설정할수있다.  -->
+ 	<action-state id="getCustomer">
+		<evaluate result="customer" expression="orderFlowAction.getCustomer(requestParameters.name)" />
+		<transition to="registerCustomer" on-exception="com.hwan.order.flow.CustomerNotFoundException" />
+		<transition on="success" to="customerReady" />
+	</action-state>
+ 	
+ 	<!-- 플로우 안에서 작업을 수행하는 곳
+ 			작업 수행 결과로 반환된 리턴 값이 이벤트 ID로 간주되어 이벤트에 따라 다른 상태로 이동
+ 			orderFlowAction 빈의 addCustomer() 메서드를 호출한 결과로 리턴된 결과에 따라 전이한다. 
+ 			to : 이동할 상태 ID
+ 			on : 전이를 일으키는 이벤트
+ 			on-exception : 전이를 일으키는 예외-->
+ 	<action-state id="saveCustomer">
+		<evaluate expression="orderFlowAction.addCustomer(customer)" />
+		<transition on="success" to="customerReady" />
+		<transition on="failure" to="getCustomer" />
+	</action-state>
+	
+	<!-- end-state는 플로우가 종료됨을 의미 -->
+	<end-state id="cancel" />
+	
+	<end-state id="customerReady">
+		<output name="customer" />
+	</end-state>
+	
+	<!-- 디폴트 전이, 다른 전이가 적용되지 않으면 적용되는 전이 -->
+	<global-transitions>
+		<transition on="cancel" to="cancel" />
+	</global-transitions>
+	
+
+</flow>

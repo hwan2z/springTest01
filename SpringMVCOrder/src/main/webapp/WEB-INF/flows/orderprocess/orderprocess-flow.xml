@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+	<!-- 플로우 데이터 정의 -->
+	<var name="order" class="com.hwan.order.model.OrderModel" />
+
+	<!--  subflow-state는 현재 플로우 컨텍스트 안에서 새로운 서브 플로우를 시작한다. -->
+	<subflow-state id="identityCustomer"  subflow="orderprocess/customer">
+	<!-- 
+		<output name="customer" value="order.customer" />
+		 -->
+		 <output name="customer"/>
+		<transition on="customerReady" to="buildOrder" >
+			<set name="order.customer" value="customer"/>
+		</transition>
+	</subflow-state>
+	
+	<subflow-state id="buildOrder" subflow="orderprocess/order" >
+ 		<input name="order" value="order" /> 
+		<transition on="orderCreated" to="purchaseOrder" />
+	</subflow-state>
+	
+	<!-- 종료 상태, 웹플로우를 종료한다. 종료할때 물리 뷰 이름을 지정할수있다. -->
+	<end-state id="theEnd" view="/WEB-INF/views/home.jsp"/>
+
+</flow>

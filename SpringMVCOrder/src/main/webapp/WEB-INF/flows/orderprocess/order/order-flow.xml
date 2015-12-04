@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+	<input name="order" required="true" />
+	
+	<!-- view-state는 사용자에게 정보를 표시하고 사용자로부터 정보를 입력받을때 사용
+			사용자가 웹 페이지의 버튼 또는 하이퍼링크를 클릭하여 이벤트를 발생시킴으로써 플로우의 흐름을 주도
+			뷰 상태에 들어오면 FlowViewResolver는 뷰 상태 ID를 논리 뷰 이름으로 상요하여 물리뷰를 결정한다.
+			물리 뷰는 해당 플로우 폴더에 있는 논리 뷰 이름 뒤에 .jsp확장자를 가진 파일이된다.
+			밑에 코드는 showOrder.jsp뷰를 실행하게 된다.
+			view애트리뷰트로 물리적인 뷰 이름을 명시할 수도 있다.
+			view="/WEB-INF/views/home.jsp" -->
+	<view-state id="showOrder" model="order">
+		<transition on="selectProduct" to="selectOrderItem"/>
+		<transition on="orderPlaced" to="orderCreated" />
+		<transition on="cancel" to="cancel" />
+	</view-state>
+
+</flow>

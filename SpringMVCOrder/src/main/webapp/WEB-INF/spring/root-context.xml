@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd">	
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!--  일반적으로 컨트롤러에서 사용하는 서비스 컴포넌트는 루트 컨텍스트 안에 포함된다, 
+			데이터 소스빈, 트랜잭션 빈, 서비스빈, 레파지토리 빈 
+			이 경우에는 서비스 컴포넌트를 포함하는 서비스 티어가 프레젠테이션 티어와 같은 서버에 배포된다.
+			그러나 서비스 티어가 물리적으로 다른 서버에 분산되어 배포된다면 이러한 구성을 사용할 수 없게 된다.
+			물리적인 다른 서버에서 분산 배포하는 경우는 다른방식으로-->
+	<context:component-scan base-package="com.hwan.order.service" />
+	<context:component-scan base-package="com.hwan.order.repository" />
+	<context:component-scan base-package="com.hwan.order.aspect" />
+	<aop:aspectj-autoproxy/>
+	
+	<!-- 국제화 하기위해 .properties 불러오기위한 구현체-->
+	<bean id="messageSource"  class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="cacheSeconds" value="-1"/>
+		<property name="defaultEncoding" value="UTF-8"/>
+		<property name="basenames">
+			<list>
+			<value>/WEB-INF/i18n/message</value>
+			<value>/WEB-INF/i18n/common</value>
+			<value>/WEB-INF/i18n/validation</value>				
+			</list>
+		</property>
+	</bean>
+	
+	
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"> 
+		<property name="validationMessageSource" ref="messageSource" />	
+	</bean>
+	
+</beans>
